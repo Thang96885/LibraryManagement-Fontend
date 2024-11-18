@@ -32,6 +32,17 @@ class BookService {
     }
     alert("Book deleted successfully");
   }
+
+  async getBook(id: number): Promise<BookRecord> {
+    const response = await fetch(API_URL + "/get/" + id, { method: "GET" });
+    console.log(response);
+    if (response.ok) {
+      var data = await response.json();
+      return BookRecord.fromJSON(data);
+    } else {
+      throw new Error("Failed to get book");
+    }
+  }
 }
 
 

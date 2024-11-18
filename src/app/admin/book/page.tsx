@@ -1,10 +1,10 @@
 "use client"
 
-import BookService from "../services/BookService";
+import BookService from "../../services/BookService";
 import { useState } from "react";
-import BookTable from "../components/table/book-table";
-import { BookRecord } from "../models/book-model";
-import AuthService from "../services/AuthService";
+import BookTable from "../../components/table/book-table";
+import { BookRecord } from "../../models/book-model";
+import AuthService from "../../services/AuthService";
 
 export default function Book() {
 

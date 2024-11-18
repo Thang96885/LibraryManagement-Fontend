@@ -170,7 +170,7 @@ export default function BookTable({ listBookRecord, bookService, setBooks }: Boo
                             <td className="p-2 border-r">{book.NumberOfCopies}</td>
                             <td className="p-2 border-r">{book.NumberAvailable}</td>
                             <td>
-                                <Link href="#" className="bg-green-500 p-2 m-1 rounded text-white hover:shadow-lg text-xs font-thin">View</Link>
+                                <Link href={"/book/book-detail?id=" + book.id} className="bg-green-500 p-2 m-1 rounded text-white hover:shadow-lg text-xs font-thin">View</Link>
                                 <Link href="#" className="bg-blue-500 p-2 m-1 rounded text-white hover:shadow-lg text-xs font-thin">Edit</Link>
                                 <button className="bg-red-500 p-2 m-1 rounded text-white hover:shadow-lg text-xs font-thin" onClick={() => {handlerDelete(book.id)}}>
                                     Remove

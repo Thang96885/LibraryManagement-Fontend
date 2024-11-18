@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Dashboard from "./components/layout/dashboard";
+import Panel from "./components/layout/panel";
 
 
 const geistSans = localFont({
@@ -34,8 +35,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-          <Dashboard></Dashboard>       
-        {children}
+        <div className="grid grid-cols-12">
+
+          <header className="col-span-12">
+            <Dashboard />
+          </header>
+
+          <aside className="col-span-2">
+            <Panel></Panel>
+          </aside>
+
+          <main className="col-span-10">
+            {children}
+          </main>
+          
+        </div>  
+        
       </body>
     </html>
   );
