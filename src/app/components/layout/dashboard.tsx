@@ -1,30 +1,25 @@
 "use client";
-import AuthService from "@/app/services/AuthService";
+import { useEffect } from 'react';
 import DashBoardBeforeLogin from "./dashboard_before_login";
 import DashboardAfterLogin from "./dashboard_after_login";
-import { useEffect, useState } from "react";
+import AuthService from "@/app/services/AuthService";
 
-export default function Dashboard() 
-{
-    const authService = new AuthService();
-    const [jwtToken, setJwtToken] = useState("");
+export default function Dashboard() {
+  const authService = new AuthService();
 
-    useEffect(() => {
-        const jwtToken = authService.GetJwtToken();
-        console.log("Token fetched in useEffect:", jwtToken);
-        setJwtToken(jwtToken);
-    }, [jwtToken, setJwtToken]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      authService.validateTokenAndRedirect();
+    }, 300); // Check every 30 seconds
 
-    console.log("jwttoken " + jwtToken);
+    return () => clearInterval(interval);
+  }, []);
 
-    if(jwtToken == null || jwtToken == "")
-    {
-        return (
-            <DashBoardBeforeLogin></DashBoardBeforeLogin>
-        );
-    }
+  const isAuthenticated = authService.validateTokenAndRedirect();
 
-    return (
-        <DashboardAfterLogin authService={authService}></DashboardAfterLogin>    
-    );
+  if (!isAuthenticated) {
+    return <DashBoardBeforeLogin />;
+  }
+
+  return <DashboardAfterLogin authService={authService} />;
 }

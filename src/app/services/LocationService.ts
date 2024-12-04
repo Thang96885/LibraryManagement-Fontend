@@ -1,13 +1,23 @@
 import { ListLocationRequest, ListLocationResult } from "../models/location-model";
+import AuthService from "./AuthService";
 import { Base_URL } from "./BaseUrl";
 
 const API_URL = Base_URL + "/api/Location";
 
 export class LocationService{
+    private authService: AuthService;
+
+    constructor()
+    {
+        this.authService = new AuthService();
+    }
+
     async ListLocation(request: ListLocationRequest) : Promise<ListLocationResult>
     {
         var param = new URLSearchParams(request as any).toString();
-        var response = await fetch(API_URL + "/list?" + param, {method: "GET"});
+        var response = await fetch(API_URL + "/list?" + param, {method: "GET",
+            headers: this.authService.getAuthHeaders()
+        });
 
         if(response.ok)
         {

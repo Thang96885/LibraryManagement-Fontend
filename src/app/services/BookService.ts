@@ -7,8 +7,28 @@ const API_URL = Base_URL + "/api/Book";
 
 class BookService {
   async getBooks(request: ListBookQuery) : Promise<ListBookRecord> {
-    var param = new URLSearchParams(request as any).toString();
-    var response = await fetch(API_URL + "/list" + "?" + param, { method: "GET" });
+    
+    const filteredRequest = Object.fromEntries(
+      Object.entries(request).filter(([_, value]) => {
+          if (Array.isArray(value)) {
+              return value.length > 0; // Keep the property if the array is not empty
+          }
+          return value != null; // Keep the property if it is not null or undefined
+      })
+    );
+
+    delete filteredRequest.genreIds;
+
+    var param = new URLSearchParams(filteredRequest as any).toString();
+    var paramStr = param.toString();
+    if (request.genreIds && request.genreIds.length > 0) {
+      console.log(request.genreIds);
+      request.genreIds.forEach((genreId) => {
+        paramStr += "&genreIds=" + genreId;
+      });
+    }
+
+    var response = await fetch(API_URL + "/list" + "?" + paramStr, { method: "GET" });
     console.log(response);
     if (response.ok) {
       var data = await response.json();
@@ -27,14 +47,13 @@ class BookService {
       body: JSON.stringify({ id: id })
     });
     if (!response.ok) {
-      console.log(response);
-      alert("Failed to delete book");
+      throw new Error("Failed to delete book");
     }
-    alert("Book deleted successfully");
   }
 
   async getBook(id: number): Promise<BookRecord> {
-    const response = await fetch(API_URL + "/get/" + id, { method: "GET" });
+    const response = await fetch(API_URL + "/get/" + id, { method: "GET"
+     });
     console.log(response);
     if (response.ok) {
       var data = await response.json();

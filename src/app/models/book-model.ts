@@ -12,58 +12,143 @@ class ListBookRecord{
 }
 
 
+class ListBookQuery {
+  page: number;
+  pageSize: number;
+  bookId: number;
+  bookTitle: string;
+  authorId: number;
+  locationId: number;
+  yearPublicationId: number;
+  isAvailable: boolean;
+  genreIds: number[];
+
+  constructor(page: number, 
+      pageSize: number,
+      bookId: number,
+      bookTitle: string,
+      authorId: number,
+      locationId: number, 
+      yearPublicationId: number, 
+      isAvailable: boolean, 
+      genreIds: number[]){
+
+    this.page = page;
+    this.pageSize = pageSize;
+    this.bookId = bookId;
+    this.bookTitle = bookTitle;
+    this.authorId = authorId;
+    this.locationId = locationId;
+    this.yearPublicationId = yearPublicationId;
+    this.isAvailable = isAvailable;
+    this.genreIds = genreIds;
+  }
+}
+
+
 class BookRecord {
     id: number;
     Title: string;
-    AuthorName: string;
+    Authors: AuthorDto[];
     PublisherName: string;
-    PublicationYear: number;
+    PublicationYear: PublicationYearDto;
     PageCount: number;
     NumberOfCopies: number;
     NumberAvailable: number;
     Genres: GenreRecord[];
+    Description: string;
+    Location : LocationDto;
+    ImageUrl: string;
 
-    constructor(id: number, Title: string, AuthorName: string, PublisherName: string, PublicationYear: number, PageCount: number, NumberOfCopies: number, NumberAvailable: number, Genres: GenreRecord[]){
+
+    constructor(id: number, Title: string, Authors: AuthorDto[],
+       PublisherName: string, PublicationYear: PublicationYearDto,
+        PageCount: number, NumberOfCopies: number, NumberAvailable: number,
+         Genres: GenreRecord[], Description: string, Location: LocationDto, ImageUrl: string = ""){
         this.id = id;
         this.Title = Title;
-        this.AuthorName = AuthorName;
+        this.Authors = Authors;
         this.PublisherName = PublisherName;
         this.PublicationYear = PublicationYear;
         this.PageCount = PageCount;
         this.NumberOfCopies = NumberOfCopies;
         this.NumberAvailable = NumberAvailable;
         this.Genres = Genres;
+        this.Description = Description;
+        this.Location = Location;
+        this.ImageUrl = ImageUrl;
     }
 
     static fromJSON(json: any): BookRecord {
         return new BookRecord(
           json.id,
           json.title,
-          json.authorName,
+          json.authors,
           json.publisherName,
           json.publicationYear,
           json.pageCount,
-          json.numberOfCopy,
+          json.numberOfCopies,
           json.numberAvailable,
-          json.genres.map(GenreRecord.fromJSON)
+          json.genres.map(GenreRecord.fromJSON),
+          json.description,
+          new LocationDto(json.location.id, json.location.name),
+          json.imageUrl
         );
       }
 }
 
-class ListBookQuery {
-  page: number;
-  pageSize: number;
+export class UpdateBookRequest{
   bookId: number;
-  bookTitle: string;
-  authorName: string;
+  title: string;
+  publisherName: string;
+  publicationYearId: number;
+  pageCount: number;
+  locationId: number;
+  authorIds: number[];
+  genreIds: number[];
 
-  constructor(page: number, pageSize: number, bookId: number, bookTitle: string, authorName: string){
-    this.page = page;
-    this.pageSize = pageSize;
+  constructor(bookId: number, title: string, publisherName: string, publicationYearId: number, pageCount: number, locationId: number, authorIds: number[], genreIds: number[]){
     this.bookId = bookId;
-    this.bookTitle = bookTitle;
-    this.authorName = authorName;
+    this.title = title;
+    this.publisherName = publisherName;
+    this.publicationYearId = publicationYearId;
+    this.pageCount = pageCount;
+    this.locationId = locationId;
+    this.authorIds = authorIds;
+    this.genreIds = genreIds;
   }
 }
+
+export class LocationDto{
+  id: number;
+  name: string;
+
+  constructor(id: number, name: string){
+    this.id = id;
+    this.name = name;
+  }
+}
+
+export class AuthorDto{
+  id: number;
+  name: string;
+
+  constructor(id: number, name: string){
+    this.id = id;
+    this.name = name;
+  }
+}
+
+
+export class PublicationYearDto{
+  id: number;
+  year: number;
+
+  constructor(id: number, year: number){
+    this.id = id;
+    this.year = year;
+  }
+}
+
 
 export { BookRecord, ListBookRecord, ListBookQuery };

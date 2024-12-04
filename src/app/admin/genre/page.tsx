@@ -11,7 +11,8 @@ export default function Genre() {
 
     return (
         <div className="flex">
-            <GenreTable genreService={genreService} listGenreRecords={genres} setGenres={setGenres}></GenreTable>
+                <GenreTable genreService={genreService} listGenreRecords={genres} setGenres={setGenres}></GenreTable>
+            
         </div>
     )
 }

@@ -47,6 +47,8 @@ export default function PatronTable({ listPatronRecords, patronService: patronSe
     }
 
     const handlerRemove = (id: number) => {
+        
+
         var alter = confirm("Are you sure you want to delete this patron?");
         if (alter) {
             patronService.DeletePatron(id).then((data) => {
