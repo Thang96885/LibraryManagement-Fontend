@@ -1,5 +1,4 @@
-import { BookRecord, ListBookQuery, ListBookRecord } from "../models/book-model";
-import { ListQuery } from "../models/common-model";
+import { BookRecord, ListBookQuery, ListBookRecord, UpdateBookRequest } from "../models/book-model";
 import { Base_URL } from "./BaseUrl";
 import AuthService from "./AuthService";
 
@@ -37,6 +36,20 @@ class BookService {
       return new ListBookRecord(data.numberOfBooks, bookRecords);
     } else {
       throw new Error("Failed to get books");
+    }
+  }
+
+  async updateBook(book: UpdateBookRequest) : Promise<boolean>{
+    const response = await fetch(API_URL + "/update-bookInfo", {
+      method: "Post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(book)
+    });
+    console.log(response);
+    if (response.ok) {
+      return true;
+    } else {
+      return false;
     }
   }
 

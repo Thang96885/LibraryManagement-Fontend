@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookRecord } from '@/app/models/book-model';
+import { BookRecord, UpdateBookRequest } from '@/app/models/book-model';
 import BookService from '@/app/services/BookService';
 import styles from '@/app/components/form/style.module.css';
 import { ListAuthorResult } from '@/app/models/author-model';
@@ -30,7 +30,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
     const [locations, setLocations] = useState<ListLocationResult>(new ListLocationResult([], 0));
     const [publicationYears, setPublicationYears] = useState<ListPublicationYearResult>(new ListPublicationYearResult([], 0));
 
-
     const [selectedAuthors, setSelectedAuthors] = useState<Option[]>(null);
     const [selectedGenres, setSelectedGenres] = useState<Option[]>(null);
     const [selectedLocation, setSelectedLocation] = useState(0);
@@ -46,7 +45,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
     const locationService = new LocationService();
     const publicationYearService = new PublicationService();
 
-
     useEffect(() => {
         if (type !== BookFormType.Add) {
             bookService.getBook(bookId).then((data) => {
@@ -54,7 +52,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                 console.log(data);
 
                 setSelectedAuthors(data.Authors.map((author) => ({ value: author.id, label: author.name })));
-                setSelectedGenres(data.Genres.map((genre) => ({ value: genre.Id, label:  + genre.Name })));
+                setSelectedGenres(data.Genres.map((genre) => ({ value: genre.Id, label: genre.Name })));
                 setSelectedLocation(data.Location.id);
                 setId(data.id);
                 setTitle(data.Title);
@@ -62,7 +60,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                 setPageCount(data.PageCount);
                 setBookImageUrl(data.ImageUrl);
                 setDescription(data.Description);
-
             }).catch((error) => {
                 console.error('Failed to fetch book details:', error);
                 alert("Failed to get book");
@@ -82,18 +79,28 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
         });
     }, [bookId, type]);
 
-    const handlerEdit = async () => {
-        if(type === BookFormType.View){
-            setType(BookFormType.Edit);
-            setDisabled(false);
+    const handlerEdit = () => {
+        setDisabled(!isDisabled);
+    };
+    const handlerSave = async () => {
+        if(true){
+            const request = new UpdateBookRequest(
+                id,
+                title,
+                "", publicationYearId,
+                pageCount, selectedLocation,
+                selectedAuthors.map((author) => author.value),
+                selectedGenres.map((genre) => genre.value),
+            );
+            const response = await bookService.updateBook(request);
+            if(response){
+                setType(BookFormType.View);
+                setDisabled(true);
+            } else {
+                alert("Failed to update book");
+            }
         }
-        else
-        {
-            bookService
-        }
-        
     }
-
 
     return (
         <div className={styles.containerForm}>
@@ -129,7 +136,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 disabled={isDisabled}
                                 id="publication-year"
                                 name="publication-year"
-                                value={publicationYearId}
+                                value={publicationYearId || ""}
                                 onChange={e => setPublicationYearId(Number(e.target.value))}
                             >
                                 <option value="">Select Publication Year</option>
@@ -144,7 +151,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 disabled={isDisabled}
                                 id="location"
                                 name="location"
-                                value={selectedLocation}
+                                value={selectedLocation || ""}
                                 onChange={e => setSelectedLocation(Number(e.target.value))}
                             >
                                 <option value="">Select Location</option>
@@ -179,7 +186,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 defaultValue={book?.NumberOfCopies}
                             />
                         </div>
-
                         <div className={styles.infoForm}>
                             <label htmlFor="number-available">Number Available:</label>
                             <input
@@ -188,7 +194,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 id="number-available"
                                 name="number-available"
                                 placeholder="Enter Number Available"
-                                defaultValue={book?.NumberAvailable}
+                                defaultValue={book?.NumberAvailable || 0}
                             />
                         </div>
                     </div>
@@ -226,12 +232,12 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 onChange={(e) => setBookImageUrl(e.target.value)}
                             />
                         </div>
-                       
                     </div>
+
                     <div className={styles.formRowForm}>
                         <div className={styles.infoForm}>
                             <label htmlFor="description">Description:</label>
-                            <textarea className='w-full h-24 resize-none'
+                            <textarea
                                 disabled={isDisabled}
                                 id="description"
                                 name="description"
@@ -245,14 +251,14 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                     <div className="flex justify-end">
                         <button
                             type="button"
-                            onClick={() => setDisabled(!isDisabled)}
-                            className="bg-gray-500 text-white px-4 py-2 rounded mr-5"
+                            onClick={() => handlerEdit()}
+                            className="bg-gray-500 text-white px-4 py-2 rounded"
                         >
                             {isDisabled ? "Edit" : "Cancel"}
                         </button>
                         <button
                             type="button"
-                            onClick={() => console.log("Save")}
+                            onClick={() => handlerSave()}
                             className="bg-blue-500 text-white px-4 py-2 rounded"
                         >
                             Save
