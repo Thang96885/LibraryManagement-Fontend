@@ -1,23 +1,20 @@
 import { useState, useEffect } from 'react';
-import { BookRecord, UpdateBookRequest } from '@/app/models/book-model';
-import BookService from '@/app/services/BookService';
 import styles from '@/app/components/form/style.module.css';
-import { ListAuthorResult } from '@/app/models/author-model';
-import { ListLocationResult } from '@/app/models/location-model';
-import { ListPublicationYearResult } from '@/app/models/publication-model';
-import AuthorService from '@/app/services/AuthorService';
-import { LocationService } from '@/app/services/LocationService';
-import { PublicationService } from '@/app/services/PublicationService';
 import { AuthorSelect } from '../select/author-select';
 import { GenreSelect } from '../select/genre-select';
+import { ListPublicationYearResult } from '@/app/models/publication-model';
+import { ListLocationResult } from '@/app/models/location-model';
+import { LocationService } from '@/app/services/LocationService';
+import { PublicationService } from '@/app/services/PublicationService';
+import BookService from '@/app/services/BookService';
+import { CreateBookRequest } from '@/app/models/book-model';
+import { useRouter } from 'next/navigation';
+
 
 export default function AddBookForm() {
-    const [isDisabled, setDisabled] = useState(false);
-    const [book, setBook] = useState<BookRecord | null>(null);
-    const [authors, setAuthors] = useState<ListAuthorResult>(new ListAuthorResult([], 0));
-    const [locations, setLocations] = useState<ListLocationResult>(new ListLocationResult([], 0));
-    const [publicationYears, setPublicationYears] = useState<ListPublicationYearResult>(new ListPublicationYearResult([], 0));
+    const router = useRouter();
 
+    const [isDisabled, setDisabled] = useState(false);
     const [selectedAuthors, setSelectedAuthors] = useState<Option[]>(null);
     const [selectedGenres, setSelectedGenres] = useState<Option[]>(null);
     const [selectedLocation, setSelectedLocation] = useState(0);
@@ -28,16 +25,26 @@ export default function AddBookForm() {
     const [bookImageUrl, setBookImageUrl] = useState("");
     const [description, setDescription] = useState("");
 
-    const bookService = new BookService();
-    const authorService = new AuthorService();
+    const [locations, setLocations] = useState<ListLocationResult>(new ListLocationResult([], 0));
+    const [publicationYears, setPublicationYears] = useState<ListPublicationYearResult>(new ListPublicationYearResult([], 0));
+
     const locationService = new LocationService();
     const publicationYearService = new PublicationService();
+    const bookService = new BookService();
+
+    
+    const [errors, setErrors] = useState({
+        selectedAuthors: "",
+        selectedGenres: "",
+        selectedLocation: "",
+        title: "",
+        publicationYearId: "",
+        pageCount: "",
+        bookImageUrl: "",
+        description: ""
+    });
 
     useEffect(() => {
-        authorService.listAuthors({ page: 1, pageSize: 1000, searchName: "" }).then((data) => {
-            setAuthors(data);
-        });
-
         locationService.ListLocation({ page: 1, pageSize: 1000, locationId: 0, SearchName: "" }).then((data) => {
             setLocations(data);
         });
@@ -46,21 +53,94 @@ export default function AddBookForm() {
             setPublicationYears(data);
         });
     }, []);
-    const handlerSave = async () => {
-        
-    }
+    
+
+    const validate = () => {
+        let valid = true;
+        let errors = {
+            selectedAuthors: "",
+            selectedGenres: "",
+            selectedLocation: "",
+            title: "",
+            publicationYearId: "",
+            pageCount: "",
+            bookImageUrl: "",
+            description: ""
+        };
+
+        if (selectedAuthors == null || selectedAuthors.length === 0) {
+            errors.selectedAuthors = "At least one author is required";
+            valid = false;
+        }
+
+        if (selectedGenres == null || selectedGenres.length === 0) {
+            errors.selectedGenres = "At least one genre is required";
+            valid = false;
+        }
+
+        if (selectedLocation === 0) {
+            errors.selectedLocation = "Location is required";
+            valid = false;
+        }
+
+        if (!title) {
+            errors.title = "Title is required";
+            valid = false;
+        }
+
+        if (publicationYearId === 0) {
+            errors.publicationYearId = "Publication year is required";
+            valid = false;
+        }
+
+        if (pageCount === 0) {
+            errors.pageCount = "Page count is required";
+            valid = false;
+        }
+
+        if (!bookImageUrl) {
+            errors.bookImageUrl = "Image URL is required";
+            valid = false;
+        }
+
+        if (!description) {
+            errors.description = "Description is required";
+            valid = false;
+        }
+
+        setErrors(errors);
+        return valid;
+    };
+
+    const handleSubmit = async () => {
+        var request = new CreateBookRequest(title, "", bookImageUrl, 
+            description, publicationYearId, pageCount, selectedLocation, selectedAuthors.map((item) => item.value), selectedGenres.map((item) => item.value));
+        if (validate()) {
+            var request = new CreateBookRequest(title, "", bookImageUrl, 
+                description, publicationYearId, pageCount, selectedLocation, selectedAuthors.map((item) => item.value), selectedGenres.map((item) => item.value));
+            const result = await bookService.createBook(request);
+            console.log(JSON.stringify(request));
+            if (result) {
+                alert("Book added successfully");
+            }
+            else
+            {
+                alert("Failed to add book");
+            }
+        }
+    };
 
     return (
-        <div className={styles.containerForm}>
+        <form onSubmit={handleSubmit} className={styles.containerForm}>
             <div className={styles.bookImgForm}>
                 <p>Book Cover</p>
                 <img
-                    src={bookImageUrl || "https://th.bing.com/th/id/OIP.kEKWG9WO-kIzLXqm6_khxgHaFS?w=201&h=180&c=7&r=0&o=5&dpr=1.6&pid=1.7"}
+                    src={bookImageUrl || "https://i1.sndcdn.com/artworks-zEXddSDiXCzwYPei-eldnCg-t500x500.jpg"}
                     alt="Book Cover"
                 />
             </div>
             <div className={styles.contentForm}>
-                <h1>ADD BOOK</h1>
+                <h1>Add Book</h1>
                 <div className={styles.bookFormForm}>
                     <div className={styles.formRowForm}>
                         <div className={styles.infoForm}>
@@ -74,6 +154,7 @@ export default function AddBookForm() {
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                             />
+                            {errors.title && <span className={styles.error}>{errors.title}</span>}
                         </div>
                     </div>
 
@@ -84,14 +165,17 @@ export default function AddBookForm() {
                                 disabled={isDisabled}
                                 id="publication-year"
                                 name="publication-year"
-                                value={publicationYearId || ""}
-                                onChange={e => setPublicationYearId(Number(e.target.value))}
+                                value={publicationYearId}
+                                onChange={(e) => setPublicationYearId(Number(e.target.value))}
                             >
                                 <option value="">Select Publication Year</option>
-                                {publicationYears.records.map((year) => (
-                                    <option key={year.id} value={year.id}>{year.year}</option>
+                                {publicationYears.records.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.year}
+                                    </option>
                                 ))}
                             </select>
+                            {errors.publicationYearId && <span className={styles.error}>{errors.publicationYearId}</span>}
                         </div>
                         <div className={styles.infoForm}>
                             <label htmlFor="location">Location:</label>
@@ -99,14 +183,17 @@ export default function AddBookForm() {
                                 disabled={isDisabled}
                                 id="location"
                                 name="location"
-                                value={selectedLocation || ""}
-                                onChange={e => setSelectedLocation(Number(e.target.value))}
+                                value={selectedLocation}
+                                onChange={(e) => setSelectedLocation(Number(e.target.value))}
                             >
                                 <option value="">Select Location</option>
-                                {locations.locations.map((location) => (
-                                    <option key={location.id} value={location.id}>{location.name}</option>
+                                {locations.locations.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.name}
+                                    </option>
                                 ))}
                             </select>
+                            {errors.selectedLocation && <span className={styles.error}>{errors.selectedLocation}</span>}
                         </div>
                         <div className={styles.infoForm}>
                             <label htmlFor="page-count">Page Count:</label>
@@ -119,6 +206,7 @@ export default function AddBookForm() {
                                 value={pageCount}
                                 onChange={(e) => setPageCount(Number(e.target.value))}
                             />
+                            {errors.pageCount && <span className={styles.error}>{errors.pageCount}</span>}
                         </div>
                     </div>
 
@@ -126,21 +214,21 @@ export default function AddBookForm() {
                         <div className={styles.infoForm}>
                             <label htmlFor="author">Author:</label>
                             <AuthorSelect
-                                showNumberOfBooks={false}
                                 selectAuthorId={selectedAuthors}
                                 setSelectAuthorId={setSelectedAuthors}
                                 isDisabled={isDisabled}
                             />
+                            {errors.selectedAuthors && <span className={styles.error}>{errors.selectedAuthors}</span>}
                         </div>
 
                         <div className={styles.infoForm}>
                             <label htmlFor="genre">Genre:</label>
-                            <GenreSelect 
-                                showNumberOfBooks={false}
+                            <GenreSelect
                                 selectGenreId={selectedGenres}
                                 setSelectGenreId={setSelectedGenres}
                                 isDisabeld={isDisabled}
                             />
+                            {errors.selectedGenres && <span className={styles.error}>{errors.selectedGenres}</span>}
                         </div>
                     </div>
 
@@ -156,6 +244,7 @@ export default function AddBookForm() {
                                 value={bookImageUrl}
                                 onChange={(e) => setBookImageUrl(e.target.value)}
                             />
+                            {errors.bookImageUrl && <span className={styles.error}>{errors.bookImageUrl}</span>}
                         </div>
                     </div>
 
@@ -170,20 +259,21 @@ export default function AddBookForm() {
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                             />
+                            {errors.description && <span className={styles.error}>{errors.description}</span>}
                         </div>
                     </div>
 
                     <div className="flex justify-end">
                         <button
                             type="button"
-                            onClick={() => handlerSave()}
                             className="bg-blue-500 text-white px-4 py-2 rounded"
+                            onClick={() => {handleSubmit()}}
                         >
                             Save
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     );
 }

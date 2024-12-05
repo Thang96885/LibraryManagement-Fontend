@@ -1,4 +1,4 @@
-import { BookRecord, ListBookQuery, ListBookRecord, UpdateBookRequest } from "../models/book-model";
+import { BookRecord, CreateBookRequest, ListBookQuery, ListBookRecord, UpdateBookRequest } from "../models/book-model";
 import { Base_URL } from "./BaseUrl";
 import AuthService from "./AuthService";
 
@@ -76,7 +76,7 @@ class BookService {
     }
   }
 
-  async createBook(book: UpdateBookRequest): Promise<boolean> {
+  async createBook(book: CreateBookRequest): Promise<boolean> {
     const response = await fetch(API_URL + "/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
