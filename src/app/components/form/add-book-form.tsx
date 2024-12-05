@@ -11,20 +11,8 @@ import { PublicationService } from '@/app/services/PublicationService';
 import { AuthorSelect } from '../select/author-select';
 import { GenreSelect } from '../select/genre-select';
 
-export enum BookFormType {
-    View = "View",
-    Add = "Add",
-    Edit = "Edit"
-}
-
-interface BookFormProps {
-    bookId: number;
-    type: BookFormType;
-    setType: (type: BookFormType) => void;
-}
-
-export default function BookForm({ bookId, type, setType }: BookFormProps) {
-    const [isDisabled, setDisabled] = useState(true);
+export default function AddBookForm() {
+    const [isDisabled, setDisabled] = useState(false);
     const [book, setBook] = useState<BookRecord | null>(null);
     const [authors, setAuthors] = useState<ListAuthorResult>(new ListAuthorResult([], 0));
     const [locations, setLocations] = useState<ListLocationResult>(new ListLocationResult([], 0));
@@ -46,26 +34,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
     const publicationYearService = new PublicationService();
 
     useEffect(() => {
-        if (type !== BookFormType.Add) {
-            bookService.getBook(bookId).then((data) => {
-                setBook(data);
-                console.log(data);
-
-                setSelectedAuthors(data.Authors.map((author) => ({ value: author.id, label: author.name })));
-                setSelectedGenres(data.Genres.map((genre) => ({ value: genre.Id, label: genre.Name })));
-                setSelectedLocation(data.Location.id);
-                setId(data.id);
-                setTitle(data.Title);
-                setPublicationYearId(data.PublicationYear.id);
-                setPageCount(data.PageCount);
-                setBookImageUrl(data.ImageUrl);
-                setDescription(data.Description);
-            }).catch((error) => {
-                console.error('Failed to fetch book details:', error);
-                alert("Failed to get book");
-            });
-        }
-
         authorService.listAuthors({ page: 1, pageSize: 1000, searchName: "" }).then((data) => {
             setAuthors(data);
         });
@@ -77,29 +45,9 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
         publicationYearService.listPublicationYears({ page: 1, pageSize: 1000, searchYear: 0 }).then((data) => {
             setPublicationYears(data);
         });
-    }, [bookId, type]);
-
-    const handlerEdit = () => {
-        setDisabled(!isDisabled);
-    };
+    }, []);
     const handlerSave = async () => {
-        if(true){
-            const request = new UpdateBookRequest(
-                id,
-                title,
-                "", bookImageUrl, description, publicationYearId,
-                pageCount, selectedLocation,
-                selectedAuthors.map((author) => author.value),
-                selectedGenres.map((genre) => genre.value),
-            );
-            const response = await bookService.updateBook(request);
-            if(response){
-                setType(BookFormType.View);
-                setDisabled(true);
-            } else {
-                alert("Failed to update book");
-            }
-        }
+        
     }
 
     return (
@@ -112,7 +60,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                 />
             </div>
             <div className={styles.contentForm}>
-                <h1>{type === BookFormType.Add ? "Add Book" : type === BookFormType.Edit ? "Edit Book" : "View Book"}</h1>
+                <h1>ADD BOOK</h1>
                 <div className={styles.bookFormForm}>
                     <div className={styles.formRowForm}>
                         <div className={styles.infoForm}>
@@ -160,9 +108,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 ))}
                             </select>
                         </div>
-                    </div>
-
-                    <div className={styles.formRowForm}>
                         <div className={styles.infoForm}>
                             <label htmlFor="page-count">Page Count:</label>
                             <input
@@ -173,28 +118,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 placeholder="Enter Page Count"
                                 value={pageCount}
                                 onChange={(e) => setPageCount(Number(e.target.value))}
-                            />
-                        </div>
-                        <div className={styles.infoForm}>
-                            <label htmlFor="number-of-copy">Number of Copies:</label>
-                            <input
-                                disabled={true}
-                                type="number"
-                                id="number-of-copy"
-                                name="number-of-copy"
-                                placeholder="Enter Number of Copies"
-                                defaultValue={book?.NumberOfCopies}
-                            />
-                        </div>
-                        <div className={styles.infoForm}>
-                            <label htmlFor="number-available">Number Available:</label>
-                            <input
-                                disabled={true}
-                                type="number"
-                                id="number-available"
-                                name="number-available"
-                                placeholder="Enter Number Available"
-                                defaultValue={book?.NumberAvailable || 0}
                             />
                         </div>
                     </div>
@@ -212,7 +135,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
 
                         <div className={styles.infoForm}>
                             <label htmlFor="genre">Genre:</label>
-                            <GenreSelect
+                            <GenreSelect 
                                 showNumberOfBooks={false}
                                 selectGenreId={selectedGenres}
                                 setSelectGenreId={setSelectedGenres}
@@ -251,13 +174,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                     </div>
 
                     <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={() => handlerEdit()}
-                            className="bg-gray-500 text-white px-4 py-2 rounded"
-                        >
-                            {isDisabled ? "Edit" : "Cancel"}
-                        </button>
                         <button
                             type="button"
                             onClick={() => handlerSave()}

@@ -101,16 +101,44 @@ export class UpdateBookRequest{
   bookId: number;
   title: string;
   publisherName: string;
+  imageUrl: string;
+  description: string;
   publicationYearId: number;
   pageCount: number;
   locationId: number;
   authorIds: number[];
   genreIds: number[];
 
-  constructor(bookId: number, title: string, publisherName: string, publicationYearId: number, pageCount: number, locationId: number, authorIds: number[], genreIds: number[]){
+  constructor(bookId: number, title: string, publisherName: string, imageUrl: string, description: string, publicationYearId: number, pageCount: number, locationId: number, authorIds: number[], genreIds: number[]){
     this.bookId = bookId;
     this.title = title;
     this.publisherName = publisherName;
+    this.imageUrl = imageUrl;
+    this.description = description;
+    this.publicationYearId = publicationYearId;
+    this.pageCount = pageCount;
+    this.locationId = locationId;
+    this.authorIds = authorIds;
+    this.genreIds = genreIds;
+  }
+}
+
+export class CreateBookRequest{
+  title: string;
+  publisherName: string;
+  imageUrl: string;
+  description: string;
+  publicationYearId: number;
+  pageCount: number;
+  locationId: number;
+  authorIds: number[];
+  genreIds: number[];
+
+  constructor(title: string, publisherName: string, imageUrl: string, description: string, publicationYearId: number, pageCount: number, locationId: number, authorIds: number[], genreIds: number[]){
+    this.title = title;
+    this.publisherName = publisherName;
+    this.imageUrl = imageUrl;
+    this.description = description;
     this.publicationYearId = publicationYearId;
     this.pageCount = pageCount;
     this.locationId = locationId;

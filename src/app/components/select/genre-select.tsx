@@ -7,9 +7,10 @@ interface GenreSelectProps {
   selectGenreId: Option[];
   setSelectGenreId: (value: Option[]) => void;
   isDisabeld?: boolean;
+  showNumberOfBooks?: boolean;
 }
 
-export const GenreSelect = ({selectGenreId, setSelectGenreId, isDisabeld} : GenreSelectProps) => {
+export const GenreSelect = ({selectGenreId, setSelectGenreId, isDisabeld: isDisabled, showNumberOfBooks} : GenreSelectProps) => {
   const genreService = new GenreService();
   const [genres, setGenres] = React.useState<Options>([]);
 
@@ -17,7 +18,7 @@ export const GenreSelect = ({selectGenreId, setSelectGenreId, isDisabeld} : Genr
     genreService.getAllGenres({page: 1, pageSize: 1000, genreId: 0, SearchName: ""}).then((data) => {
       const formattedGenres = data.genres.map((genre) => ({
         value: genre.id.toString(),
-        label: genre.name + " (" + genre.numberBook + ")",
+        label: showNumberOfBooks ? genre.name + " (" + genre.numberBook + ")" : genre.name,
     }));
     setGenres(formattedGenres);
     });
@@ -30,7 +31,7 @@ export const GenreSelect = ({selectGenreId, setSelectGenreId, isDisabeld} : Genr
 
   return (
     <Select
-      isDisabled={isDisabeld}
+      isDisabled={isDisabled}
       isMultiple={true}
       isClearable={true}
       primaryColor={"blue"}

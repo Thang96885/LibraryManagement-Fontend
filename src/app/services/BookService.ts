@@ -75,6 +75,20 @@ class BookService {
       throw new Error("Failed to get book");
     }
   }
+
+  async createBook(book: UpdateBookRequest): Promise<boolean> {
+    const response = await fetch(API_URL + "/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(book)
+    });
+    console.log(response);
+    if (response.ok) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 
