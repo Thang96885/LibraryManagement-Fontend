@@ -1,4 +1,4 @@
-import { BookRecord, CreateBookRequest, ListBookQuery, ListBookRecord, UpdateBookRequest } from "../models/book-model";
+import { BookCopyDto, BookRecord, CreateBookRequest, GetBookResult, ListBookQuery, ListBookRecord, UpdateBookRequest } from "../models/book-model";
 import { Base_URL } from "./BaseUrl";
 import AuthService from "./AuthService";
 
@@ -64,13 +64,14 @@ class BookService {
     }
   }
 
-  async getBook(id: number): Promise<BookRecord> {
+  async getBook(id: number): Promise<GetBookResult> {
     const response = await fetch(API_URL + "/get/" + id, { method: "GET"
      });
     console.log(response);
     if (response.ok) {
       var data = await response.json();
-      return BookRecord.fromJSON(data);
+      return new GetBookResult(BookRecord.fromJSON(data),
+      data.bookCopyList.map((item: any) => new BookCopyDto(item.iBSN, item.acquisitionDate, item.status, item.price, item.bookPhysicalCondition)));
     } else {
       throw new Error("Failed to get book");
     }

@@ -178,5 +178,45 @@ export class PublicationYearDto{
   }
 }
 
+export class BookCopyDto{
+  iBSN: string;
+  acquisitionDate: Date;
+  status: string;
+  price: number;
+  bookPhysicalCondition: string;
+
+  constructor(iBSN: string, acquisitionDate: Date, status: string, price: number, bookPhysicalCondition: string){
+    this.iBSN = iBSN;
+    this.acquisitionDate = acquisitionDate;
+    this.status = status;
+    this.price = price;
+    this.bookPhysicalCondition = bookPhysicalCondition;
+  }
+}
+
+export class GetBookResult{
+  bookInfo: BookRecord;
+  bookCopyList: BookCopyDto[];
+
+  constructor(bookInfo: BookRecord, bookCopyList: BookCopyDto[]){
+    this.bookInfo = bookInfo;
+    this.bookCopyList = bookCopyList;
+  }
+}
+
+export enum BookStatus{
+  Available,
+  Borrowed,
+  UnderMaintenance,
+  Lost
+}
+
+public enum BookPhysicalCondition{
+  New,         
+  Good,
+  Fair,
+  Damaged,
+}
+
 
 export { BookRecord, ListBookRecord, ListBookQuery };

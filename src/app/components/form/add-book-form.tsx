@@ -122,6 +122,7 @@ export default function AddBookForm() {
             console.log(JSON.stringify(request));
             if (result) {
                 alert("Book added successfully");
+                window.location.href = "/admin/book";
             }
             else
             {

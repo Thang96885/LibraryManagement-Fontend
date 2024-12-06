@@ -111,6 +111,10 @@ export default function BookTable({ listBookRecord, bookService, setBooks }: Boo
         setPage(1);
     }
 
+    const handlerAdd = () => {
+        window.location.href = "/admin/book/Add";
+    }
+
     return (
         <div className="container mx-auto p-6">
             {/* Search Section */}
@@ -181,7 +185,9 @@ export default function BookTable({ listBookRecord, bookService, setBooks }: Boo
 
                 </div>
             </div>
-
+            <div className="flex justify-between items-center mb-6">
+                <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => {handlerAdd()}}>Add Book</button>
+            </div>
             {/* Table Section */}
             <div className="bg-white rounded-lg shadow overflow-x-auto">
                 <div className="inline-block min-w-full align-middle">
