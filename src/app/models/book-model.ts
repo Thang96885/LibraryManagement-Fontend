@@ -205,17 +205,19 @@ export class GetBookResult{
 }
 
 export enum BookStatus{
-  Available,
-  Borrowed,
-  UnderMaintenance,
-  Lost
+  None = "",
+  Available = "Available",
+  Borrowed = "Borrowed",
+  UnderMaintenance = "Under Maintenance",
+  Lost  = "Lost",
 }
 
-public enum BookPhysicalCondition{
-  New,         
-  Good,
-  Fair,
-  Damaged,
+export enum BookPhysicalCondition{
+  None = "",
+  New = "New",         
+  Good = "Good",
+  Fair = "Fair",
+  Damaged = "Damaged",
 }
 
 
