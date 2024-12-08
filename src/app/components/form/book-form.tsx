@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookRecord, UpdateBookRequest } from '@/app/models/book-model';
+import { BookRecord, GetBookResult, UpdateBookRequest } from '@/app/models/book-model';
 import BookService from '@/app/services/BookService';
 import styles from '@/app/components/form/style.module.css';
 import { ListAuthorResult } from '@/app/models/author-model';
@@ -10,6 +10,7 @@ import { LocationService } from '@/app/services/LocationService';
 import { PublicationService } from '@/app/services/PublicationService';
 import { AuthorSelect } from '../select/author-select';
 import { GenreSelect } from '../select/genre-select';
+import BookCopyTable from '../table/book-copy-table';
 
 export enum BookFormType {
     View = "View",
@@ -25,10 +26,11 @@ interface BookFormProps {
 
 export default function BookForm({ bookId, type, setType }: BookFormProps) {
     const [isDisabled, setDisabled] = useState(true);
-    const [book, setBook] = useState<BookRecord | null>(null);
+    const [book, setBook] = useState<GetBookResult>(null);
     const [authors, setAuthors] = useState<ListAuthorResult>(new ListAuthorResult([], 0));
     const [locations, setLocations] = useState<ListLocationResult>(new ListLocationResult([], 0));
     const [publicationYears, setPublicationYears] = useState<ListPublicationYearResult>(new ListPublicationYearResult([], 0));
+    const [dataChanged, setDataChanged] = useState(false);
 
     const [selectedAuthors, setSelectedAuthors] = useState<Option[]>(null);
     const [selectedGenres, setSelectedGenres] = useState<Option[]>(null);
@@ -51,15 +53,15 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                 setBook(data);
                 console.log(data);
 
-                setSelectedAuthors(data.Authors.map((author) => ({ value: author.id, label: author.name })));
-                setSelectedGenres(data.Genres.map((genre) => ({ value: genre.Id, label: genre.Name })));
-                setSelectedLocation(data.Location.id);
-                setId(data.id);
-                setTitle(data.Title);
-                setPublicationYearId(data.PublicationYear.id);
-                setPageCount(data.PageCount);
-                setBookImageUrl(data.ImageUrl);
-                setDescription(data.Description);
+                setSelectedAuthors(data.bookInfo.Authors.map((author) => ({ value: author.id, label: author.name })));
+                setSelectedGenres(data.bookInfo.Genres.map((genre) => ({ value: genre.Id, label: genre.Name })));
+                setSelectedLocation(data.bookInfo.Location.id);
+                setId(data.bookInfo.id);
+                setTitle(data.bookInfo.Title);
+                setPublicationYearId(data.bookInfo.PublicationYear.id);
+                setPageCount(data.bookInfo.PageCount);
+                setBookImageUrl(data.bookInfo.ImageUrl);
+                setDescription(data.bookInfo.Description);
             }).catch((error) => {
                 console.error('Failed to fetch book details:', error);
                 alert("Failed to get book");
@@ -103,14 +105,14 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
     }
 
     return (
-        <div className={styles.containerForm}>
-            <div className={styles.bookImgForm}>
+            <div className={styles.containerForm}>
+                <div className={styles.bookImgForm}>
                 <p>Book Cover</p>
                 <img
                     src={bookImageUrl || "https://th.bing.com/th/id/OIP.kEKWG9WO-kIzLXqm6_khxgHaFS?w=201&h=180&c=7&r=0&o=5&dpr=1.6&pid=1.7"}
                     alt="Book Cover"
                 />
-            </div>
+                </div>
             <div className={styles.contentForm}>
                 <h1>{type === BookFormType.Add ? "Add Book" : type === BookFormType.Edit ? "Edit Book" : "View Book"}</h1>
                 <div className={styles.bookFormForm}>
@@ -183,7 +185,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 id="number-of-copy"
                                 name="number-of-copy"
                                 placeholder="Enter Number of Copies"
-                                defaultValue={book?.NumberOfCopies}
+                                defaultValue={book?.bookInfo.NumberOfCopies}
                             />
                         </div>
                         <div className={styles.infoForm}>
@@ -194,7 +196,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 id="number-available"
                                 name="number-available"
                                 placeholder="Enter Number Available"
-                                defaultValue={book?.NumberAvailable || 0}
+                                defaultValue={book?.bookInfo.NumberAvailable || 0}
                             />
                         </div>
                     </div>
@@ -268,6 +270,6 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
     );
 }

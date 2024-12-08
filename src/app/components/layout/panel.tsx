@@ -30,7 +30,7 @@ export default function Panel() {
     }
 
     return (
-        <div className="flex flex-col bg-gray-800 text-gray-100 w-60 min-h-screen fixed left-0 top-16 shadow-lg">
+        <div className="flex flex-col bg-gray-800 text-gray-100 w-60 min-h-screen fixed left-0 top-8 shadow-lg">
             <div className="p-4">
                 <nav>
                     <ul className="space-y-2">

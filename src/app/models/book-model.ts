@@ -179,14 +179,14 @@ export class PublicationYearDto{
 }
 
 export class BookCopyDto{
-  iBSN: string;
+  ibns: string;
   acquisitionDate: Date;
   status: string;
   price: number;
   bookPhysicalCondition: string;
 
   constructor(iBSN: string, acquisitionDate: Date, status: string, price: number, bookPhysicalCondition: string){
-    this.iBSN = iBSN;
+    this.ibns = iBSN;
     this.acquisitionDate = acquisitionDate;
     this.status = status;
     this.price = price;
@@ -201,6 +201,44 @@ export class GetBookResult{
   constructor(bookInfo: BookRecord, bookCopyList: BookCopyDto[]){
     this.bookInfo = bookInfo;
     this.bookCopyList = bookCopyList;
+  }
+}
+
+export class UpdateBookCopyRequest{
+  bookId: number;
+  bookCopyIbns: string;
+  status: string;
+  price: number;
+  condition: string;
+
+  constructor(bookId: number, bookCopyIbns: string, status: string, price: number, condition: string){
+    this.bookId = bookId;
+    this.bookCopyIbns = bookCopyIbns;
+    this.status = status;
+    this.price = price;
+    this.condition = condition;
+  }
+}
+
+export class DeleteBookCopyRequest{
+  bookId: number;
+  bookCopyId: string;
+
+  constructor(bookId: number, bookCopyId: string){
+    this.bookId = bookId;
+    this.bookCopyId = bookCopyId;
+  }
+}
+
+export class CreateBookCopyRequest{
+  bookId: number;
+  iBNSCodes: string[];
+  price: number;
+
+  constructor(bookId: number, iBNSCodes: string[], price: number){
+    this.bookId = bookId;
+    this.iBNSCodes = iBNSCodes;
+    this.price = price;
   }
 }
 
@@ -219,6 +257,8 @@ export enum BookPhysicalCondition{
   Fair = "Fair",
   Damaged = "Damaged",
 }
+
+
 
 
 export { BookRecord, ListBookRecord, ListBookQuery };

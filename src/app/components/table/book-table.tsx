@@ -197,7 +197,6 @@ export default function BookTable({ listBookRecord, bookService, setBooks }: Boo
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Publisher</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pages</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
@@ -212,7 +211,6 @@ export default function BookTable({ listBookRecord, bookService, setBooks }: Boo
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{book.id}</td>
                                     <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{book.Title}</td>
                                     <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">{book?.Authors?.map((author) => (author.name + ",").toString())}</td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{book.PublisherName}</td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{book.PublicationYear.year}</td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{book.PageCount}</td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{book.Location.name}</td>
