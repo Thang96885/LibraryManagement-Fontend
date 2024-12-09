@@ -44,11 +44,11 @@ export class ListPatronTypeResult{
 
 export class CreatePatronTypeRequest{
     name: string;
-    discountPercent: number;
+    bookRentalFee: number;
 
-    constructor(name: string, discountPercent: number){
+    constructor(name: string, bookRentalFee: number){
         this.name = name;
-        this.discountPercent = discountPercent;
+        this.bookRentalFee = bookRentalFee;
     }
 }
 
@@ -56,11 +56,11 @@ export class CreatePatronTypeRequest{
 export class UpdatePatronTypeRequest{
     id: number;
     newName: string;
-    newDiscountPercent: number;
+    newBookRentalFee: number;
 
-    constructor(id: number, name: string, discountPercent: number){
+    constructor(id: number, name: string, newBookRentalFee: number){
         this.id = id;
         this.newName = name;
-        this.newDiscountPercent = discountPercent;
+        this.newBookRentalFee = newBookRentalFee;
     }
 }

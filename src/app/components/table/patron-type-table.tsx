@@ -20,7 +20,7 @@ export default function GenreTable({ listPatronTypeRecords, patronTypeService, s
 
     const [openForm, setOpenForm] = useState(false);
     const [formtype, setFormType] = useState(PatronTypePopupFormType.ADD);
-    const [editPatronTypeId, setEditPatronTypeId] = useState(0);
+    const [editPatronType, setEditPatronType] = useState<ListPatronTypeRecord>(new ListPatronTypeRecord(0, "", 0, 0));
 
     useEffect(() => {
         patronTypeService.ListPatronType({page: page, pageSize: 10, searchId: searchId, searchName: searchPatronTypeName}).then((data) => {
@@ -31,8 +31,8 @@ export default function GenreTable({ listPatronTypeRecords, patronTypeService, s
         })
     }, [page, searchId, searchPatronTypeName]);
 
-    const handlerEdit = (editId : number) => {
-        setEditPatronTypeId(editId);
+    const handlerEdit = (editPatron : ListPatronTypeRecord) => {
+        setEditPatronType(editPatron);
         setFormType(PatronTypePopupFormType.EDIT);
         setOpenForm(true);
     }
@@ -159,7 +159,7 @@ export default function GenreTable({ listPatronTypeRecords, patronTypeService, s
                             <td className="p-2 border-r">{typeRecord.numberOfPatrons}</td>
                             <td>
                                 <RoleGuard allowedRoles={["Admin"]}>
-                                    <button onClick={() => {handlerEdit(typeRecord.id)}} className="bg-blue-500 p-2 m-1 rounded text-white hover:shadow-lg text-xs font-thin">Edit</button>
+                                    <button onClick={() => {handlerEdit(typeRecord)}} className="bg-blue-500 p-2 m-1 rounded text-white hover:shadow-lg text-xs font-thin">Edit</button>
                                     <button onClick={() => {handlerRemove(typeRecord)}} className="bg-red-500 p-2 m-1 rounded text-white hover:shadow-lg text-xs font-thin" >
                                         Remove
                                     </button>
@@ -187,7 +187,7 @@ export default function GenreTable({ listPatronTypeRecords, patronTypeService, s
                     </tr>
                 </tfoot>
             </table>
-            <PatronTypePopupForm open={openForm} setOpen={setOpenForm} patronTypeService={patronTypeService} editPatronTypeId={editPatronTypeId} type={formtype}></PatronTypePopupForm>
+            <PatronTypePopupForm open={openForm} setOpen={setOpenForm} patronTypeService={patronTypeService} patrontypeEdit={editPatronType} type={formtype}></PatronTypePopupForm>
         </div>
     );
 }

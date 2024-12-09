@@ -30,7 +30,7 @@ export class PatronTypeService{
 
     async UpdatePatronType(request: UpdatePatronTypeRequest) : Promise<boolean>{
         const response = await fetch(API_URL + "/update", {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify(request)});
-
+        console.log(request);
         if(response.ok)
             return true;
         

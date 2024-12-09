@@ -19,6 +19,13 @@ interface PatronPopupFormProps {
     PatronService: PatronService;
 }
 
+interface PatronErrors {
+    patronName: string;
+    email: string;
+    phoneNumber: string;
+    address: string;
+}
+
 export default function PatronPopupForm({ open, setOpen, type, editPatronInfo, PatronService } : PatronPopupFormProps) { {
     const [patronName, setPatronName] = useState('');
     const [email, setEmail] = useState('');
@@ -28,6 +35,12 @@ export default function PatronPopupForm({ open, setOpen, type, editPatronInfo, P
     const patronTypeService = new PatronTypeService();
 
     const [patronTypes, setPatronTypes] = useState<ListPatronTypeResult>(new ListPatronTypeResult([], 0));
+    const [errors, setErrors] = useState<PatronErrors>({
+        patronName: '',
+        email: '',
+        phoneNumber: '',
+        address: ''
+    });
 
     useEffect(() => {
         if(type == PatronPopupFormType.EDIT){
@@ -53,31 +66,74 @@ export default function PatronPopupForm({ open, setOpen, type, editPatronInfo, P
         
     }, [open]);
 
-    const handleSubmit = async () => {
-        if(type == PatronPopupFormType.EDIT) {
-            const result = await PatronService.UpdatePatron(new UpdatePatronRequest(editPatronInfo.id, patronName, email, phoneNumber, address, patronTypeId));
+    const validateForm = (): boolean => {
+        const newErrors: PatronErrors = {
+            patronName: '',
+            email: '',
+            address: '',
+            phoneNumber: ''
+        };
+    
+        // Name validation
+        if (!patronName.trim()) {
+            newErrors.patronName = 'Name is required';
+        } else if (patronName.length < 2) {
+            newErrors.patronName = 'Name must be at least 2 characters';
+        }
+    
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email.trim()) {
+            newErrors.email = 'Email is required';
+        } else if (!emailRegex.test(email)) {
+            newErrors.email = 'Invalid email format';
+        }
+    
+        // Phone validation
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneNumber.trim()) {
+            newErrors.phoneNumber = 'Phone number is required';
+        } else if (!phoneRegex.test(phoneNumber)) {
+            newErrors.phoneNumber = 'Phone must be 10 digits';
+        }
+    
+        // Address validation
+        if (!address.trim()) {
+            newErrors.address = 'Address is required';
+        }
+    
+        setErrors(newErrors);
+        return !Object.values(newErrors).some(error => error !== '');
+    };
 
-            if(result) {
-                alert('patron updated');
-                setOpen(!open);
-            }
-            else{
-                alert('failed to update patron');
-            }
+    const handleSubmit = async () => {
+        if (!validateForm()) {
             return;
         }
-        else{
-            const result = await PatronService.CreatePatron(new CreatePatronRequest(patronName, email, phoneNumber, new PatronAddressDto("", address, "", ""), patronTypeId));
-
-            if(result) {
+    
+        if (type == PatronPopupFormType.EDIT) {
+            const result = await PatronService.UpdatePatron(
+                new UpdatePatronRequest(editPatronInfo.id, patronName, email, phoneNumber, address, patronTypeId)
+            );
+    
+            if (result) {
+                alert('Patron updated');
                 setOpen(!open);
-                alert('patron added');
+            } else {
+                alert('Failed to update patron');
             }
-            else{
-                alert('failed to add patron');
+        } else {
+            const result = await PatronService.CreatePatron(
+                new CreatePatronRequest(patronName, email, phoneNumber, new PatronAddressDto("", address, "", ""), patronTypeId)
+            );
+    
+            if (result) {
+                setOpen(!open);
+                alert('Patron added');
+            } else {
+                alert('Failed to add patron');
+            }
         }
-        }
-        
     };
 
     const handlerClose = () => {
@@ -88,9 +144,6 @@ export default function PatronPopupForm({ open, setOpen, type, editPatronInfo, P
     if (open == false) {
         return null;
     }
-
-    
-
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -103,9 +156,12 @@ export default function PatronPopupForm({ open, setOpen, type, editPatronInfo, P
                             type="text"
                             value={patronName}
                             onChange={(e) => setPatronName(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded"
+                            className={`w-full p-2 border rounded ${errors.patronName ? 'border-red-500' : 'border-gray-300'}`}
                             required
                         />
+                        {errors.patronName && (
+                            <p className="text-red-500 text-xs mt-1">{errors.patronName}</p>
+                        )}
                     </div>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Email address</label>
@@ -113,10 +169,13 @@ export default function PatronPopupForm({ open, setOpen, type, editPatronInfo, P
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded"
+                            className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
                             required
                             
                         />
+                        {errors.email && (
+                            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                        )}
                     </div>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Phone number</label>
@@ -124,10 +183,13 @@ export default function PatronPopupForm({ open, setOpen, type, editPatronInfo, P
                             type="text"
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded"
+                            className={`w-full p-2 border rounded ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
                             required
                             maxLength={10}
                         />
+                        {errors.phoneNumber && (
+                            <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>
+                        )}
                     </div>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Address</label>
@@ -135,9 +197,12 @@ export default function PatronPopupForm({ open, setOpen, type, editPatronInfo, P
                             type="text"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded"
+                            className={`w-full p-2 border rounded ${errors.address ? 'border-red-500' : 'border-gray-300'}`}
                             required
                         />
+                        {errors.address && (
+                            <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+                        )}
                     </div>
                     <div>
                     <label className="block text-gray-700 mb-2">Patron type</label>

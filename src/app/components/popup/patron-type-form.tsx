@@ -1,7 +1,7 @@
 import { UpdateGenreRequest } from "@/app/models/genre-model";
-import { CreatePatronTypeRequest, UpdatePatronTypeRequest } from "@/app/models/patron-type-model";
+import { CreatePatronTypeRequest, ListPatronTypeRecord, UpdatePatronTypeRequest } from "@/app/models/patron-type-model";
 import { PatronTypeService } from "@/app/services/PatronTypeService";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 export enum PatronTypePopupFormType{
@@ -13,14 +13,26 @@ interface PatronTypePopupFormProps {
     open: boolean;
     setOpen: (open: boolean) => void;
     type: PatronTypePopupFormType;
-    editPatronTypeId: number;
+    patrontypeEdit: ListPatronTypeRecord;
     patronTypeService: PatronTypeService;
 }
 
-export default function PatronTypePopupForm({open, setOpen, type, editPatronTypeId, patronTypeService} : PatronTypePopupFormProps) { {
+export default function PatronTypePopupForm({open, setOpen, type, patrontypeEdit, patronTypeService} : PatronTypePopupFormProps) { {
     const [patronTypeName, setPatronTypeName] = useState('');
     const [discountPercent, setDiscountPercent] = useState(0);
 
+
+    useEffect(() => {
+        if(type == PatronTypePopupFormType.EDIT){
+            setPatronTypeName(patrontypeEdit.name);
+            setDiscountPercent(patrontypeEdit.discountPercent);
+        }
+        else
+        {
+            setPatronTypeName('');
+            setDiscountPercent(0);
+        }
+    }, [patrontypeEdit, open]);
 
     const handleSubmit = async () => {
         if(type == PatronTypePopupFormType.ADD) {
@@ -33,7 +45,8 @@ export default function PatronTypePopupForm({open, setOpen, type, editPatronType
             }
         }
         else{
-            const result =  await patronTypeService.UpdatePatronType(new UpdatePatronTypeRequest(editPatronTypeId, patronTypeName, discountPercent));
+            console.log(discountPercent);
+            const result =  await patronTypeService.UpdatePatronType(new UpdatePatronTypeRequest(patrontypeEdit.id, patronTypeName, discountPercent));
 
             if(result)
                 alert('patron type updated');

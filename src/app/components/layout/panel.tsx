@@ -154,12 +154,12 @@ export default function Panel() {
                             {menuStates.circulation && (
                                 <ul className="pl-6 mt-2 space-y-2">
                                     <li>
-                                        <Link href="/admin/borrow" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
+                                        <Link href="/admin/borrow-record" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
                                             <FaClipboardList className="w-4 h-4 mr-2" />Borrow Records
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/admin/return" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
+                                        <Link href="/admin/return-record" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
                                             <FaClipboardList className="w-4 h-4 mr-2" />Return Records
                                         </Link>
                                     </li>
