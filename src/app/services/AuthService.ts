@@ -1,5 +1,5 @@
 import { METHODS } from 'http';
-import { AuthResult, ListAccountRequest, ListAccountResult, LoginRequest, ResetPasswordRequest } from '../models/auth-model';
+import { AuthResult, ListAccountRequest, ListAccountResult, LoginRequest, ResetPasswordRequest, ChangePasswordRequest } from '../models/auth-model';
 import { Base_URL } from './BaseUrl';
 import { AccountInfo } from '../models/auth-model';
 import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
@@ -70,6 +70,25 @@ class AuthService{
         }
         else 
         {
+            return false;
+        }
+    }
+
+    public async changePassword(request: ChangePasswordRequest): Promise<boolean> {
+        try {
+            const response = await fetch(API_URL + '/change-password', {
+                method: 'POST',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify(request)
+            });
+
+            if (response.ok) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch {
+            this.clearTokensAndRedirect();
             return false;
         }
     }

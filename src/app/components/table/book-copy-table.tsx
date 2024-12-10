@@ -145,13 +145,15 @@ export default function BookCopyTable({ bookInfo, bookService, onUpdate }: BookC
                     </select>
                 </div>
             </div>
-            
+            <RoleGuard allowedRoles={["Admin", "Librarian"]}>
             <button 
                 onClick={() => {handlerAddBookCopy()}}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
                 Add Book Copy
             </button>
+            </RoleGuard>
+            
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">

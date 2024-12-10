@@ -153,12 +153,7 @@ export default function BorrowRecordTable({ borrowRecordService, patronService }
                                     >
                                         View
                                     </button>
-                                    <button
-                                        onClick={() => console.log('Delete not implemented yet')}
-                                        className="text-red-600 hover:text-red-900"
-                                    >
-                                        Delete
-                                    </button>
+
                                 </td>
                             </tr>
                         ))}

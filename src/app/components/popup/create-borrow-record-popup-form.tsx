@@ -4,7 +4,7 @@ import { CreateBorrowRecordRequest, BorrowRecordBookInfo } from '@/app/models/bo
 import { PatronService } from '@/app/services/PatronService';
 import BookService from '@/app/services/BookService';
 import { ListPatronRecord } from '@/app/models/patron-model';
-import { ListBookRecord, BookCopyDto, ListBookQuery, BookRecord, GetBookResult } from '@/app/models/book-model';
+import { ListBookRecord, BookCopyDto, ListBookQuery, BookRecord } from '@/app/models/book-model';
 
 interface CreateBorrowRecordPopupFormProps {
     open: boolean;
@@ -17,12 +17,12 @@ interface CreateBorrowRecordPopupFormProps {
 export default function CreateBorrowRecordPopupForm({ open, setOpen, patronService, bookService, onCreate }: CreateBorrowRecordPopupFormProps) {
     const [patrons, setPatrons] = useState<ListPatronRecord[]>([]);
     const [books, setBooks] = useState<BookRecord[]>([]);
-    const [bookCopies, setBookCopies] = useState<GetBookResult>(null);
+    const [bookCopies, setBookCopies] = useState<BookCopyDto[]>([]);
     const [patronId, setPatronId] = useState<number>(0);
     const [dueDate, setDueDate] = useState<string>('');
-    const [bookId, setBookId] = useState<number>(0);
-    const [bookCopyId, setBookCopyId] = useState<string>('');
-    const [selectedBookCopyIds, setSelectedBookCopyIds] = useState<string[]>([]);
+    const [selectedBooks, setSelectedBooks] = useState<{ bookId: number, bookCopyIds: string[] }[]>([]);
+    const [currentBookId, setCurrentBookId] = useState<number>(0);
+    const [currentBookCopyId, setCurrentBookCopyId] = useState<string>('');
 
     useEffect(() => {
         const fetchPatrons = async () => {
@@ -34,31 +34,28 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
             }
         };
 
-        bookService.getBooks({
-            page: 1,
-            pageSize: 1000,
-            bookId: 0,
-            authorId: 0,
-            bookTitle: '',
-            locationId: 0,
-            isAvailable: true,
-            genreIds:  [],
-            yearPublicationId: 0
-        }).then((data) => {
-            setBooks(data.books);
-        });
-
-        fetchPatrons();
-    }, [patronService, bookService]);
+        const fetchBooks = async () => {
+            try {
+                const result = await bookService.getBooks(new ListBookQuery(1, 1000, 0, "", 0, 0, 0, true, []));
+                setBooks(result.books);
+            } catch (error) {
+                console.error('Failed to fetch books:', error);
+            }
+        };
+        if(open){
+            fetchPatrons();
+            fetchBooks();
+        }
+        
+    }, [patronService, bookService, open]);
 
     useEffect(() => {
         const fetchBookCopies = async () => {
-            if (bookId > 0) {
+            if (currentBookId > 0) {
                 try {
-                    const result = await bookService.getBook(bookId);
+                    const result = await bookService.getBook(currentBookId);
                     result.bookCopyList = result.bookCopyList.filter((copy: BookCopyDto) => copy.status === 'Available');
-                    setBookCopies(result);
-                    console.log(bookCopies);
+                    setBookCopies(result.bookCopyList);
                 } catch (error) {
                     console.error('Failed to fetch book copies:', error);
                 }
@@ -66,23 +63,43 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
         };
 
         fetchBookCopies();
-        console.log(bookCopies);
-    }, [bookId, bookService]);
+    }, [currentBookId, bookService]);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const borrowRecordBooksInfo = [new BorrowRecordBookInfo(bookId, [bookCopyId])];
-        const request = new CreateBorrowRecordRequest(borrowRecordBooksInfo, new Date(dueDate), patronId);
-        onCreate(request);
-        setOpen(false);
+    const handleBookSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setCurrentBookId(Number(e.target.value));
+        setCurrentBookCopyId('');
     };
 
     const handleBookCopySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedCopyId = e.target.value;
         if (selectedCopyId) {
-            setSelectedBookCopyIds([...selectedBookCopyIds, selectedCopyId]);
-            setBookCopyId('');
+            const updatedBooks = [...selectedBooks];
+            const bookIndex = updatedBooks.findIndex(book => book.bookId === currentBookId);
+            if (bookIndex > -1) {
+                updatedBooks[bookIndex].bookCopyIds.push(selectedCopyId);
+            } else {
+                updatedBooks.push({ bookId: currentBookId, bookCopyIds: [selectedCopyId] });
+            }
+            setSelectedBooks(updatedBooks);
+            setCurrentBookCopyId(''); // Reset the combobox value
         }
+    };
+
+    const handleDeleteAll = () => {
+        setSelectedBooks([]);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const borrowRecordBooksInfo = selectedBooks.map(book => new BorrowRecordBookInfo(book.bookId, book.bookCopyIds));
+        const request = new CreateBorrowRecordRequest(borrowRecordBooksInfo, new Date(dueDate), patronId);
+        onCreate(request);
+        setOpen(false);
+    };
+
+    const getFilteredBookCopies = () => {
+        const selectedCopyIds = selectedBooks.flatMap(book => book.bookCopyIds);
+        return bookCopies.filter(copy => !selectedCopyIds.includes(copy.ibns));
     };
 
     if (!open) return null;
@@ -122,8 +139,8 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Book</label>
                             <select
-                                value={bookId}
-                                onChange={(e) => setBookId(Number(e.target.value))}
+                                value={currentBookId}
+                                onChange={handleBookSelect}
                                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                                 required
                             >
@@ -133,17 +150,16 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
                                 ))}
                             </select>
                         </div>
-                        {bookId > 0 && (
+                        {currentBookId > 0 && (
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">Book Copy</label>
                                 <select
-                                    value={bookCopyId}
-                                    onChange={handleBookCopySelect}
+                                    value={currentBookCopyId}
+                                    onChange={(e) => {handleBookCopySelect(e)}}
                                     className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                                    required
                                 >
                                     <option value="">Select Book Copy</option>
-                                    {bookCopies?.bookCopyList.map((copy) => (
+                                    {getFilteredBookCopies().map((copy) => (
                                         <option key={copy.ibns} value={copy.ibns}>{copy.ibns}</option>
                                     ))}
                                 </select>
@@ -152,13 +168,20 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Selected Book Copies</label>
                             <textarea
-                                value={selectedBookCopyIds.join('\n')}
+                                value={selectedBooks.map(book => `Book ID: ${book.bookId}, Copies: ${book.bookCopyIds.join(', ')}`).join('\n')}
                                 readOnly
                                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                                 rows={5}
                             />
                         </div>
                         <div className="mt-4 flex justify-end gap-2">
+                            <button
+                                type="button"
+                                onClick={handleDeleteAll}
+                                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                            >
+                                Delete All
+                            </button>
                             <button
                                 type="button"
                                 onClick={() => setOpen(false)}

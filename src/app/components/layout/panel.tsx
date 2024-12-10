@@ -8,6 +8,7 @@ import {
   FaClipboardList, FaChartBar, FaUser, FaCalendar
 } from 'react-icons/fa';
 import AuthService from "@/app/services/AuthService";
+import RoleGuard from "../auth/RoleGuard";
 
 export default function Panel() {
     const authService = new AuthService();
@@ -47,13 +48,16 @@ export default function Panel() {
                             </button>
                             {menuStates.account && (
                                 <ul className="pl-6 mt-2 space-y-2">
+                                    <RoleGuard allowedRoles={["Admin", "Librarian"]}>
+                                        <li>
+                                            <Link href="/admin/account" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
+                                                <FaUserCog className="w-4 h-4 mr-2" />Account Management
+                                            </Link>
+                                        </li>
+                                    </RoleGuard>
+                                    
                                     <li>
-                                        <Link href="/admin/account" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
-                                            <FaUserCog className="w-4 h-4 mr-2" />Account Management
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/auth/change-password" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
+                                        <Link href="/admin/auth/change-password" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
                                             <FaKey className="w-4 h-4 mr-2" />Change Password
                                         </Link>
                                     </li>
@@ -65,8 +69,7 @@ export default function Panel() {
                                 </ul>
                             )}
                         </li>
-
-                        {/* Category Management */}
+                        <RoleGuard allowedRoles={["Admin", "Librarian"]}>
                         <li>
                             <button onClick={() => toggleMenu('category')}
                                 className="flex items-center w-full p-3 text-gray-300 rounded hover:bg-gray-700 transition-colors">
@@ -107,6 +110,9 @@ export default function Panel() {
                                 </ul>
                             )}
                         </li>
+                        </RoleGuard>
+                        {/* Category Management */}
+                        
 
                         {/* Customer Information */}
                         <li>
@@ -121,19 +127,17 @@ export default function Panel() {
                             </button>
                             {menuStates.customerInfo && (
                                 <ul className="pl-6 mt-2 space-y-2">
-                                    <li>
-                                        <Link href="/admin/patron" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
-                                            <FaUsers className="w-4 h-4 mr-2" />Patron
-                                        </Link>
-                                    </li>
+                                    <RoleGuard allowedRoles={["Admin", "Librarian"]}>
+                                        <li>
+                                            <Link href="/admin/patron" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
+                                                <FaUsers className="w-4 h-4 mr-2" />Patron
+                                            </Link>
+                                        </li>
+                                    </RoleGuard>
+                                    
                                     <li>
                                         <Link href="/admin/book" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
                                             <FaBook className="w-4 h-4 mr-2" />Book
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/admin/book-copy" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
-                                            <FaBookOpen className="w-4 h-4 mr-2" />Book Copy
                                         </Link>
                                     </li>
                                 </ul>
@@ -163,11 +167,14 @@ export default function Panel() {
                                             <FaClipboardList className="w-4 h-4 mr-2" />Return Records
                                         </Link>
                                     </li>
-                                    <li>
-                                        <Link href="/admin/reports" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
-                                            <FaChartBar className="w-4 h-4 mr-2" />Reports & Statistics
-                                        </Link>
-                                    </li>
+                                    <RoleGuard allowedRoles={["Admin", "Librarian"]}>
+                                        <li>
+                                            <Link href="/admin/reports" className="flex items-center p-2 text-gray-400 rounded hover:bg-gray-700">
+                                                <FaChartBar className="w-4 h-4 mr-2" />Reports & Statistics
+                                            </Link>
+                                        </li>
+                                    </RoleGuard>
+                                    
                                 </ul>
                             )}
                         </li>

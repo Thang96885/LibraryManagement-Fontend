@@ -83,3 +83,15 @@ export class ListAccountRequest{
       this.accountName = accountName;
     }
   }
+
+export class ChangePasswordRequest {
+  userName: string;
+  currentPassword: string;
+  newPassword: string;
+
+  constructor(userName: string, currentPassword: string, newPassword: string) {
+    this.userName = userName;
+    this.currentPassword = currentPassword;
+    this.newPassword = newPassword;
+  }
+}

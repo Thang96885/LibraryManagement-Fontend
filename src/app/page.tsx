@@ -10,8 +10,7 @@ export default function Home() {
 
   return (
     <RoleGuard allowedRoles={['Admin']}>
-      <div>Admin only content</div>
-      <p>Hello</p>
+      <div></div>
     </RoleGuard>
   );
 }

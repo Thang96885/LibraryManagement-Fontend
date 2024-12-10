@@ -11,6 +11,7 @@ import { PublicationService } from '@/app/services/PublicationService';
 import { AuthorSelect } from '../select/author-select';
 import { GenreSelect } from '../select/genre-select';
 import BookCopyTable from '../table/book-copy-table';
+import RoleGuard from '../auth/RoleGuard';
 
 export enum BookFormType {
     View = "View",
@@ -196,7 +197,7 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                                 id="number-available"
                                 name="number-available"
                                 placeholder="Enter Number Available"
-                                defaultValue={book?.bookInfo.NumberAvailable || 0}
+                                defaultValue={book?.bookInfo.NumberAvailable}
                             />
                         </div>
                     </div>
@@ -251,23 +252,26 @@ export default function BookForm({ bookId, type, setType }: BookFormProps) {
                             />
                         </div>
                     </div>
-
-                    <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={() => handlerEdit()}
-                            className="bg-gray-500 text-white px-4 py-2 rounded"
-                        >
-                            {isDisabled ? "Edit" : "Cancel"}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handlerSave()}
-                            className="bg-blue-500 text-white px-4 py-2 rounded"
-                        >
-                            Save
-                        </button>
-                    </div>
+                    
+                    <RoleGuard allowedRoles={["Admin", "Librarian"]}>
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => handlerEdit()}
+                                className="bg-gray-500 text-white px-4 py-2 rounded"
+                            >
+                                {isDisabled ? "Edit" : "Cancel"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handlerSave()}
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </RoleGuard>
+                    
                 </div>
             </div>
             </div>

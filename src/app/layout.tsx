@@ -35,7 +35,6 @@ export default function RootLayout({
               <header className="col-span-12">
                 <Dashboard />
               </header>
-
               <aside className="col-span-2">
                 <Panel></Panel>
               </aside>
