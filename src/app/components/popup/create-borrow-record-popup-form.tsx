@@ -22,6 +22,7 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
     const [dueDate, setDueDate] = useState<string>('');
     const [bookId, setBookId] = useState<number>(0);
     const [bookCopyId, setBookCopyId] = useState<string>('');
+    const [selectedBookCopyIds, setSelectedBookCopyIds] = useState<string[]>([]);
 
     useEffect(() => {
         const fetchPatrons = async () => {
@@ -57,7 +58,7 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
                     const result = await bookService.getBook(bookId);
                     result.bookCopyList = result.bookCopyList.filter((copy: BookCopyDto) => copy.status === 'Available');
                     setBookCopies(result);
-                    console.log(bookCopies?.bookCopyList.length);
+                    console.log(bookCopies);
                 } catch (error) {
                     console.error('Failed to fetch book copies:', error);
                 }
@@ -74,6 +75,14 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
         const request = new CreateBorrowRecordRequest(borrowRecordBooksInfo, new Date(dueDate), patronId);
         onCreate(request);
         setOpen(false);
+    };
+
+    const handleBookCopySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedCopyId = e.target.value;
+        if (selectedCopyId) {
+            setSelectedBookCopyIds([...selectedBookCopyIds, selectedCopyId]);
+            setBookCopyId('');
+        }
     };
 
     if (!open) return null;
@@ -129,7 +138,7 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
                                 <label className="block text-sm font-medium text-gray-700">Book Copy</label>
                                 <select
                                     value={bookCopyId}
-                                    onChange={(e) => setBookCopyId(e.target.value)}
+                                    onChange={handleBookCopySelect}
                                     className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                                     required
                                 >
@@ -140,6 +149,15 @@ export default function CreateBorrowRecordPopupForm({ open, setOpen, patronServi
                                 </select>
                             </div>
                         )}
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Selected Book Copies</label>
+                            <textarea
+                                value={selectedBookCopyIds.join('\n')}
+                                readOnly
+                                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                rows={5}
+                            />
+                        </div>
                         <div className="mt-4 flex justify-end gap-2">
                             <button
                                 type="button"
